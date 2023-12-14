@@ -13,5 +13,7 @@ ENV	SQL_ROOT_PASSWORD=drogonjroot
 COPY	conf/mariadb.cnf /etc/mysql/mariadb.cnf
 COPY	conf/mariadb_init.sh /etc/mysql/mariadb_init.sh
 
+EXPOSE 3306
+
 CMD chmod +x /etc/mysql/mariadb_init.sh && \
 	/bin/bash /etc/mysql/mariadb_init.sh	
