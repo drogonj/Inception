@@ -1,32 +1,31 @@
-FROM debian:buster
+FROM	debian:bullseye
 
-RUN apt upgrade -y && \
-    apt update -y && \
-    apt install vim -y && \
-    apt install wget -y && \
-    apt install php7.3 -y && \
-    apt install php-fpm -y && \
-    apt install php-mysql -y && \
-    apt install mariadb-client -y && \
-    wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www/ && \
-    wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -P /var/www/
+RUN	apt update -y && \
+	apt upgrade -y && \
+	apt install -y vim wget php7.4 php7.4-fpm php7.4-mysqli && \
+	sed -i "s|listen = /run/php/php7.4-fpm.sock|listen = 9000|g" /etc/php/7.4/fpm/pool.d/www.conf
 
-ENV     SQL_DATABASE=INCEPTION
-ENV     SQL_USER=ngalzand
-ENV     SQL_USER_PASSWORD=drogonj
-ENV     SQL_ROOT_PASSWORD=drogonjroot
+WORKDIR	/var/www
 
-WORKDIR /var/www
+RUN	wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  && \
+	wget https://fr.wordpress.org/wordpress-6.4.2-fr_FR.tar.gz && \
+	tar -xvf wordpress-6.4.2-fr_FR.tar.gz && \
+	cp -rf wordpress/* . && \
+	rm -rf wordpress wordpress-6.4.2-fr_FR.tar.gz && \
+	chmod +x wp-cli.phar && \
+	mv wp-cli.phar /usr/local/bin/wp
 
-RUN tar -xvf wordpress-6.0-fr_FR.tar.gz && \
-    rm -rf wordpress-6.0-fr_FR.tar.gz && \
-    chown root:root wordpress && \
-    chmod +x wp-cli.phar && \
-    mv wp-cli.phar /usr/local/bin/wp
+COPY	conf/wp-autoconfig.sh .
 
-COPY ./conf/www.conf /etc/php/7.3/fpm/pool.d/www.conf
-COPY ./conf/wp-autoconfig.sh /var/www/wordpress
+RUN	mkdir -p /run/php/ && \
+	chmod 777 wp-content/ && \
+	chown -R www-data:www-data /var/www/ && \
+	chmod 777 /var/www/
 
-EXPOSE 9000
+EXPOSE	9000
 
-CMD bash /var/www/wordpress/wp-autoconfig.sh
+ENTRYPOINT ["bash", "wp-autoconfig.sh"]
+
+CMD ["/usr/sbin/php-fpm7.4", "-F"]
+
+ 

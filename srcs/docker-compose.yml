@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  nginx:
+    container_name: nginx
+    build: requirements/nginx
+    ports:
+      - "443:443"
+    networks:
+      - inception
+    depends_on:
+      - wordpress
+    restart: always
+  mariadb:
+    container_name: mariadb
+    build: requirements/mariadb
+    ports:
+      - "3306:3306"
+    networks:
+      - inception
+    env_file:
+      - .env
+    restart: always
+  wordpress:
+    container_name: wordpress
+    build: requirements/wordpress
+    ports:
+      - "9000:9000"
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+    restart: always
+
+networks:
+  inception:
+    driver: bridge

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Loading mariadb initialization script..."
-/etc/init.d/mysql start
+/etc/init.d/mariadb start
 
 until mysqladmin ping &> /dev/null; do
         sleep 0.5
@@ -25,7 +25,7 @@ mysql -uroot -p"${SQL_ROOT_PASSWORD}" -e "SET PASSWORD FOR '${SQL_USER}'@'localh
 sleep 0.5
 
 echo "Setting '${SQL_USER}' privileges"
-mysql -uroot -p"${SQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';"
+mysql -uroot -p"${SQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON *.* TO '${SQL_USER}'@'wordpress.srcs_inception' IDENTIFIED BY '${SQL_USER_PASSWORD}';"
 sleep 0.5
 
 mysql -uroot -p"${SQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
@@ -35,4 +35,4 @@ echo "Restarting mysql in safe mode"
 mysqladmin -uroot -p"${SQL_ROOT_PASSWORD}" shutdown
 sleep 0.5
 
-exec mysqld_safe
+exec "$@"
