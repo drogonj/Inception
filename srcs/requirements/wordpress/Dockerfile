@@ -2,7 +2,7 @@ FROM	debian:bullseye
 
 RUN	apt update -y && \
 	apt upgrade -y && \
-	apt install -y vim wget php7.4 php7.4-fpm php7.4-mysqli && \
+	apt install -y vim wget php7.4 php7.4-fpm php7.4-mysqli php7.4-gd && \
 	sed -i "s|listen = /run/php/php7.4-fpm.sock|listen = 9000|g" /etc/php/7.4/fpm/pool.d/www.conf
 
 WORKDIR	/var/www/html
@@ -18,15 +18,6 @@ RUN	wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
 COPY	conf/wp-autoconfig.sh ./wp-autoconfig.sh
 
 RUN	mkdir -p /run/php/ && \
-	chmod 777 wp-content/ && \
-	chmod +x wp-autoconfig.sh &&\
-	chown -R www-data:www-data /var/www/html && \
-	chmod 777 /var/www/html
+	chmod +x wp-autoconfig.sh 
 
-EXPOSE	9000
-
-ENTRYPOINT ["/bin/bash", "/var/www/html/wp-autoconfig.sh"]
-
-CMD ["/usr/sbin/php-fpm7.4", "-F"]
-
- 
+CMD ["/bin/bash", "/var/www/html/wp-autoconfig.sh"] 
